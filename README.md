@@ -2,9 +2,9 @@
 Environmental Impact of Agricultural Practices in the World. 
 
 # Abstract
-The FAOSTAT dataset provides country-based data of agricultural production, imports and exports over the years -- starting in 1961. This dataset also contains metrics such as air pollutant emission, fertilizer and pesticide use, forest cover, etc... 
+The FAOSTAT dataset provides country-based data of agricultural production, imports and exports over the years, starting in 1961. This dataset also contains metrics such as air pollutant emission, fertilizer and pesticide use, forest cover, etc... 
 We seek to study the environmental impact of different agricultural practices and compare countries through this lens. We hope to identify best practices in terms of environmental impact. For example, we would like to visualize quantities of various air pollutant emissions according to different crops and livestock in order to investigate which products have the highest nutritional values and lowest environmental impacts. We would also like to study which countries are best able to maximize production while minimizing environmental impact. 
-The dataset is very rich and there are multiple angles of attack here; we can look at problem from an economic point of view ( there is information on local agricultural markets is available in the dataset ) or a nutritional one ( by looking at the nutrients in each crop ). We could even go so far as to study which agricultural subsidies could best serve both nutritional and environmental values for given countries. 
+The dataset is very rich and there are multiple angles of attack here; we can look at problem from an economic point of view ( there is information on local agricultural markets in the dataset ) or a nutritional one ( by looking at the nutrients in each crop ). We could even go so far as to study which agricultural subsidies could best serve both nutritional and environmental values for given countries. 
 
 # Research questions: 
 
