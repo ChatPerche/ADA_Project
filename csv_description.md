@@ -31,7 +31,7 @@ Elements :
 Possible reshaping:
 - Reduce the number of rows by adding a column for each element code
 - We then get the stocks, emissions/head (CH4), total emissions CH4, and total Emissions CO2eq
-
+- Need to reduce the number of items, as some include two items : for example cattle = cattle dairy + cattle non-dairy, camels and lamas = camels + lamas, all animals etc.. Decide which to drop depending on situation
  ------
 
 #### Production_Livestock_E_All_Data_(Normalized).csv

@@ -50,3 +50,7 @@ def get_all_item_mapping(data_dir):
     assert mapping['itemcode'].nunique() == len(mapping)
     mapping = {m['itemcode']: m['item'] for _, m in mapping.iterrows()}
     return mapping
+
+def get_area_mapping(df):
+    areas = df[['areacode', 'area']].drop_duplicates()
+    return areas
