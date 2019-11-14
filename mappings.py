@@ -1,11 +1,12 @@
 import os
 from glob import glob
 import pandas as pd
-from utils import rename_columns
+from utils import load_dataframe
 
 def get_element_mapping(df):
     elements = df[['elementcode', 'element', 'unit']].drop_duplicates()
-    return elements
+    elements['string'] = elements.apply(lambda x: f"{x['element']} ({x['unit']})", axis=1)
+    return dict(elements[['elementcode', 'string']].values)
 
 def get_all_element_mapping(data_dir):
     csv_files = glob(os.path.join(data_dir, "*.csv"))
@@ -13,24 +14,21 @@ def get_all_element_mapping(data_dir):
     
     mapping = []
     for file in csv_files:  # Iterate on all files
-        df = rename_columns(pd.read_csv(file, encoding="latin-1"))
+        df = load_dataframe(file)
         if 'elementcode' in df.columns:         
             df_mapping = get_element_mapping(df)
             mapping.append(df_mapping)
         else :
             print(f"Element Code not found in {file}")
-            
-    mapping = pd.concat(mapping)
-    mapping = mapping.assign(unit=mapping['unit'].str.replace("Gigagrams", "gigagrams")) #Data cleaning
+
+    mapping = pd.DataFrame(data=[y  for x in mapping for y in x.items()], columns=['element_code', 'element_string'])
     mapping = mapping.drop_duplicates()
-    assert mapping['elementcode'].nunique() == len(mapping)
-    
-    mapping = {m['elementcode']: (m['element'], m['unit']) for _, m in mapping.iterrows()}
+    assert mapping['element_code'].nunique() == len(mapping)
     return mapping
 
 def get_item_mapping(df):
-    items = df[['itemcode', 'item']].drop_duplicates()
-    return items
+    items = df.groupby(['itemcode', 'item']).apply(lambda x: list(set(x['elementcode']))).reset_index().rename({0: 'elements'}, axis=1)
+    return dict(items[['item', 'elements']].values)
 
 def get_all_item_mapping(data_dir):
     csv_files = glob(os.path.join(data_dir, "*.csv"))

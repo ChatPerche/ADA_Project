@@ -18,12 +18,12 @@ def get_element_from_mapping(elementcode, element_mapping, key='elementcode'):
     return f"{elem.element} ({elem.unit})"
 
 
-def reshape_dataframe(df, element_mapping):
+def reshape_dataframe(df):
     df = df.drop(['yearcode', 'unit', 'element', 'flag', 'areacode', 'itemcode'], axis=1)  # Drop unused columns
     df = df.set_index(['area', 'elementcode', 'item', 'year'])
     df = df['value'].unstack(1)
-    df.columns = [get_element_from_mapping(x, element_mapping) for x in df.columns]
     df = df.reset_index()
+    del df.columns.name
     return df
 
 
