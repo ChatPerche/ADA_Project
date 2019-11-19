@@ -1,13 +1,23 @@
 import pandas as pd
 
-def rename_columns(df):
-    df.columns = df.columns.str.lower()
-    df.columns = df.columns.str.replace(" ", "")
-    return df
+def groupby_second_elem(l):
+    grouped = []
+    for f, d in l:
+        found = False
+        for d2, fs in grouped:
+            if d == d2:
+                fs.append(f)
+                found=True
+        if not found:
+            grouped.append((d, [f]))
+    return grouped
 
-def load_dataframe(filename):
-    df = pd.read_csv(filename, encoding="latin-1")
-    return rename_columns(df)
+
+
+
+def is_unique_mapping(df, group_col, agg_col):
+    grouped_1 = df.groupby(group_col)[agg_col].apply(lambda x: x.values.tolist())
+    return all(grouped_1.apply(len) == 1)
 
 
 def get_element_from_mapping(elementcode, element_mapping, key='elementcode'):
