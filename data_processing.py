@@ -29,7 +29,8 @@ def load_dataframe(filename, mapping=None, drop=None):
         for c in drop:  # Iterate on columns to drop
             if c in df.columns and (col_is_duplicate(df, c) or df[c].isna().all()):
                 df = df.drop(c, axis=1)
-    df['unit'] = df['unit'].str.replace('gigagrams', 'Gigagrams')
+    if 'unit' in df.columns:
+        df['unit'] = df['unit'].str.replace('gigagrams', 'Gigagrams') # Hardcoded hack
     return df
 
 def scan_columns(files, mapping=None, drop=None):
@@ -64,13 +65,22 @@ def scan_column_duplicates(files, mapping=None, drop=None):
     grouped = groupby_second_elem(duplicates)
     return grouped
 
-def get_column_unique_values(files, mapping, drop, cols):
+def get_column_unique_values(files, mapping, drop, cols, with_file=False):
     all_vals = []
     for f in files:
         df = load_dataframe(f, mapping=mapping, drop=drop)
         if all(c in df.columns for c in cols):
             vals = df[cols].drop_duplicates()
-            vals['file'] = f
+            if with_file:
+                vals['file'] = f
             all_vals.append(vals)
     all_vals_df = pd.concat(all_vals)
     return all_vals_df.drop_duplicates()
+
+def check_duplicate_items(df, items):
+    duplicated = []
+    for i in items:
+        item_codes = df[df.item == i].itemcode.unique()
+        if len(item_codes) > 1:
+            if (df[df.itemcode == item_codes[0]].drop('itemcode', axis=1).values == df[df.itemcode == item_codes[1]].drop('itemcode', axis=1).values).all():
+                print(f"Duplicate item for {i} codes {item_codes}")

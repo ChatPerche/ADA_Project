@@ -17,7 +17,8 @@ def groupby_second_elem(l):
 
 def is_unique_mapping(df, group_col, agg_col):
     grouped_1 = df.groupby(group_col)[agg_col].apply(lambda x: x.values.tolist())
-    return all(grouped_1.apply(len) == 1)
+    grouped_2 = df.groupby(agg_col)[group_col].apply(lambda x: x.values.tolist())
+    return all(grouped_1.apply(len) == 1) and all(grouped_2.apply(len) == 1)
 
 
 def get_element_from_mapping(elementcode, element_mapping, key='elementcode'):
