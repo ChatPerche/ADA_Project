@@ -23,8 +23,7 @@ def col_is_duplicate(df, col):
 def load_dataframe(filename, mapping=None, drop=None):
     # Loads dataframe and renames columns
     df = pd.read_csv(filename, encoding="latin-1")
-    if mapping is not None:
-        df = rename_columns(df, mapping)
+    df = rename_columns(df, mapping)
     
     if drop is not None:
         for c in drop:  # Iterate on columns to drop
