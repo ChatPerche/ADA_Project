@@ -84,3 +84,17 @@ def check_duplicate_items(df, items):
         if len(item_codes) > 1:
             if (df[df.itemcode == item_codes[0]].drop('itemcode', axis=1).values == df[df.itemcode == item_codes[1]].drop('itemcode', axis=1).values).all():
                 print(f"Duplicate item for {i} codes {item_codes}")
+
+def get_duplicate_items(df):
+    if 'item' not in df.columns or 'itemcode' not in df.columns:
+        return None
+    item_to_code = df[['item', 'itemcode']].drop_duplicates().groupby('item')['itemcode'].agg(set)
+    return item_to_code[item_to_code.apply(len) > 1]
+
+def load_clean_dataframe(filename, col_rename, duplicate_cols, drop_cols):
+    df = load_dataframe(filename, col_rename, duplicate_cols)
+    if 'item' in df.columns and 'itemcode' in df.columns:
+        item_to_code = df[['item', 'itemcode']].drop_duplicates().groupby('item')['itemcode'].count()
+        if any(item_to_code > 1):
+            print(filename)
+    return df
