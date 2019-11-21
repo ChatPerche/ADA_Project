@@ -1,15 +1,14 @@
 import os
 from glob import glob
 import pandas as pd
-from utils import rename_columns
 
 def get_element_mapping(df):
     elements = df[['elementcode', 'element', 'unit']].drop_duplicates()
     return elements
 
 def get_all_element_mapping(data_dir):
-    csv_files = glob(os.path.join(data_dir, "*.csv"))
-    print(f"Fount {len(csv_files)} files in {data_dir}")
+    csv_files = glob(os.path.join(data_dir, "*/*.csv"))
+    print(f"Found {len(csv_files)} files in {data_dir}")
     
     mapping = []
     for file in csv_files:  # Iterate on all files
@@ -33,8 +32,8 @@ def get_item_mapping(df):
     return items
 
 def get_all_item_mapping(data_dir):
-    csv_files = glob(os.path.join(data_dir, "*.csv"))
-    print(f"Fount {len(csv_files)} files in {data_dir}")
+    csv_files = glob(os.path.join(data_dir, "*/*.csv"))
+    print(f"Found {len(csv_files)} files in {data_dir}")
     
     mapping = []
     for file in csv_files:  # Iterate on all files
@@ -42,7 +41,7 @@ def get_all_item_mapping(data_dir):
         if 'itemcode' in df.columns:         
             df_mapping = get_item_mapping(df)
             mapping.append(df_mapping)
-        else :
+        else:
             print(f"Item Code not found in {file}")
             
     mapping = pd.concat(mapping)
@@ -54,3 +53,9 @@ def get_all_item_mapping(data_dir):
 def get_area_mapping(df):
     areas = df[['areacode', 'area']].drop_duplicates()
     return areas
+
+
+def rename_columns(df):
+    df.columns = df.columns.str.lower()
+    df.columns = df.columns.str.replace(" ", "")
+    return df
