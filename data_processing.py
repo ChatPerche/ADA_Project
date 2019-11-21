@@ -23,7 +23,8 @@ def col_is_duplicate(df, col):
 def load_dataframe(filename, mapping=None, drop=None):
     # Loads dataframe and renames columns
     df = pd.read_csv(filename, encoding="latin-1")
-    df = rename_columns(df, mapping)
+    if mapping is not None:
+        df = rename_columns(df, mapping)
     
     if drop is not None:
         for c in drop:  # Iterate on columns to drop
@@ -82,19 +83,32 @@ def check_duplicate_items(df, items):
     for i in items:
         item_codes = df[df.item == i].itemcode.unique()
         if len(item_codes) > 1:
-            if (df[df.itemcode == item_codes[0]].drop('itemcode', axis=1).values == df[df.itemcode == item_codes[1]].drop('itemcode', axis=1).values).all():
+            if is_duplicate_item(df, i, item_codes):
                 print(f"Duplicate item for {i} codes {item_codes}")
 
 def get_duplicate_items(df):
     if 'item' not in df.columns or 'itemcode' not in df.columns:
         return None
-    item_to_code = df[['item', 'itemcode']].drop_duplicates().groupby('item')['itemcode'].agg(set)
+    item_to_code = df[['item', 'itemcode']].drop_duplicates().groupby('item')['itemcode'].agg(list)
     return item_to_code[item_to_code.apply(len) > 1]
 
+
+def is_duplicate_item(df, item_name, item_codes):
+    item_1 = df[(df.item == item_name) & (df.itemcode == item_codes[0])]
+    item_2 = df[(df.item == item_name) & (df.itemcode == item_codes[1])]
+    if item_1.shape[0] != item_2.shape[0]:
+        return False
+    return (item_1.drop('itemcode', axis=1).values == item_2.drop('itemcode', axis=1).values).all() 
+
+
 def load_clean_dataframe(filename, col_rename, duplicate_cols, drop_cols):
-    df = load_dataframe(filename, col_rename, duplicate_cols)
-    if 'item' in df.columns and 'itemcode' in df.columns:
-        item_to_code = df[['item', 'itemcode']].drop_duplicates().groupby('item')['itemcode'].count()
-        if any(item_to_code > 1):
-            print(filename)
-    return df
+    df = load_dataframe(filename, col_rename, duplicate_cols) # Load the DF
+    if 'item' in df.columns and 'itemcode' in df.columns: # Verify that it has item column
+        duplicate_items = get_duplicate_items(df)
+        if len(duplicate_items) > 0: 
+            for name, codes in duplicate_items.iteritems():
+                if is_duplicate_item(df, name, codes):
+                    df = df.drop(df[df.itemcode == codes[1]].index)  # Drop duplicates if exactly same value
+                    print(f"Dropped duplicate item {name} with codes {codes} (Dropped {codes[1]})")
+
+    return df.drop(columns=drop_cols, errors='ignore')
