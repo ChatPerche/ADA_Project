@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def groupby_second_elem(l):
     grouped = []
     for f, d in l:
@@ -7,12 +8,10 @@ def groupby_second_elem(l):
         for d2, fs in grouped:
             if d == d2:
                 fs.append(f)
-                found=True
+                found = True
         if not found:
             grouped.append((d, [f]))
     return grouped
-
-
 
 
 def is_unique_mapping(df, group_col, agg_col):
