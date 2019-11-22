@@ -27,27 +27,10 @@ def get_percentage_diff(value_1, value_2):
     return diff
 
 
-# TODO: redo those functions
-def get_element_from_mapping(elementcode, element_mapping, key='elementcode'):
-    fltr = element_mapping[element_mapping[key] == elementcode]
-    if len(fltr) == 0:
-        return ""
-    elem = fltr.iloc[0]
-    return f"{elem.element} ({elem.unit})"
-
-
-def reshape_dataframe(df):
-    df = df.drop(['yearcode', 'unit', 'element', 'flag', 'areacode', 'itemcode'], axis=1)  # Drop unused columns
-    df = df.set_index(['area', 'elementcode', 'item', 'year'])
-    df = df['value'].unstack(1)
-    df = df.reset_index()
-    del df.columns.name
-    return df
-
-
-def percentage_of_total(df, total_item, column):
-    df_total = df[df.item == total_item]
-    percentage = df.apply(lambda r: (r[column] / df_total[(df_total.year == r.year)][column].iloc[0]) * 100, axis=1)
-    new_col_name = f"{column} %"
-    df.loc[:, new_col_name] = percentage
-    return df
+def get_item(df, itemcode, areacodes=None):
+    condition = True
+    if areacodes is not None:
+        condition = df.areacode.isin(areacodes)
+    item = df[(df.itemcode == itemcode) & condition].dropna(axis=1, how='all')
+    return item    
+    
