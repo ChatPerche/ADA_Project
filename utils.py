@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 def groupby_second_elem(l):
     grouped = []
@@ -20,6 +20,14 @@ def is_unique_mapping(df, group_col, agg_col):
     return all(grouped_1.apply(len) == 1) and all(grouped_2.apply(len) == 1)
 
 
+def get_percentage_diff(value_1, value_2):
+    diff = np.abs(value_1 - value_2)
+    sum_ = (value_1 + value_2) / 2.0
+    diff = diff / sum_
+    return diff
+
+
+# TODO: redo those functions
 def get_element_from_mapping(elementcode, element_mapping, key='elementcode'):
     fltr = element_mapping[element_mapping[key] == elementcode]
     if len(fltr) == 0:
