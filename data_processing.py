@@ -129,6 +129,8 @@ def get_column_unique_values(files: List[str], mapping: dict, check_columns, col
             if with_file:
                 vals['file'] = f
             all_vals.append(vals)
+    if len(all_vals) == 0:
+        return pd.DataFrame([])
     all_vals_df = pd.concat(all_vals)
     return all_vals_df.drop_duplicates()
 
