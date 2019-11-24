@@ -190,3 +190,27 @@ def load_clean_dataframe(filename, col_rename, duplicate_cols, check_columns) ->
                     print(f"Dropped duplicate item {name} with codes {codes} (Dropped {codes[1]})")
     
     return df.drop(columns=check_columns, errors='ignore')
+
+
+def load_all_df_with_schema(files, schema, column_rename, check_columns, drop_columns):
+    dfs = []
+    for f in files:
+        df = load_clean_dataframe(f, column_rename, check_columns, drop_columns) # Load the DF
+        if all(x in schema for x in df.columns):  # Check if schema corresponds
+            df = df.assign(file=f)
+            dfs.append(df)
+    df = pd.concat(dfs).reset_index(drop=True)
+    shape = df.shape[0]
+    
+    to_keep = df.drop(columns=['file']).drop_duplicates().index # Drop all duplicated row, after removing `file`
+    df = df.loc[to_keep].reset_index(drop=True)
+    print(f"Dropped {shape - df.shape[0]} duplicate rows")
+    return df
+
+def load_item_groups(files):
+    dfs = []
+    for f in files:
+        df = load_dataframe(f)
+        dfs.append(df)
+    df = pd.concat(dfs).reset_index(drop=True)    
+    return df

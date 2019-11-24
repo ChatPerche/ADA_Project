@@ -46,3 +46,9 @@ def all_present_values_equal(dd1, dd2):
         print("All present items are equal")
     if missing:
         print("Some measurements exist in the first but not the second")
+        
+
+def get_ts_stats(df):
+    grouped = df.groupby(['itemcode', 'areacode'])
+    apply_func = lambda x: pd.Series({'years': x['year'].tolist(), 'cols': x.drop(columns=['areacode', 'itemcode', 'year']).dropna(axis=1, how='all').columns.tolist()})
+    return grouped.apply(apply_func)
