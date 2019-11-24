@@ -10,7 +10,7 @@ import numpy as np
 from random import shuffle
 
 def introduce_differentiation(slice):
-    return (slice - slice.shift()).dropna(axis=0,how='all')
+    return np.tanh((slice - slice.shift()).dropna(axis=0,how='all')/(slice.loc[1:]))
 
 def build_samples(data, max_lag_steps, input_columns, output_columns):
 
@@ -28,7 +28,7 @@ def build_samples(data, max_lag_steps, input_columns, output_columns):
 
         slice = slice.set_index(['areacode','year'])
 
-        #slice = introduce_differentiation(slice)
+        slice = introduce_differentiation(slice)
 
         slice[column_name] = preprocessing.MinMaxScaler(feature_range=(0, 1))\
                             .fit_transform(slice.values)
@@ -53,13 +53,13 @@ def build_samples(data, max_lag_steps, input_columns, output_columns):
     area_codes = df.areacode.unique()
 
     # max_lag_steps + 1 - 1
-    for start_year in range(year_idxs[0], year_idxs[-1] - (max_lag_steps + 1 )):
+    for start_year in range(year_idxs[0], year_idxs[-1] - (max_lag_steps + 1 -1)):
         for area_c in area_codes:
 
             # One slice is a set of time series over an area
             #   Each column of the slice is a time series
             slice = df[(df.year >= start_year) &
-                        (df.year < start_year + max_lag_steps + 1 ) &
+                        (df.year < start_year + max_lag_steps + 1 -1 ) &
                         (df.areacode == area_c)].reset_index()
 
             # If do not have max_lag_steps+1 rows to our slice,
@@ -74,7 +74,7 @@ def build_samples(data, max_lag_steps, input_columns, output_columns):
             # The last condition checks that none of the values that we
             #   are trying to predict on are Nans
             if (not slice.isnull().values.any())  \
-                and len(slice)==max_lag_steps+1  \
+                and len(slice)==max_lag_steps+1 -1 \
                 and not slice.iloc[:1][df.columns[-len(output_columns):]].isnull().values.any():
                 observations.append(slice.fillna(0))
 
