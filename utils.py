@@ -56,8 +56,6 @@ def get_column_unique_values(df, cols) -> pd.DataFrame:
     return df[cols].drop_duplicates()
 
 
-
-
 def normalize_by_pop(df, pop_df):
     df = df.merge(pop_df, left_on=['areacode', 'year'], right_on=['areacode', 'year'], how='left')
     df['value'] = df['value'] / df['population']
