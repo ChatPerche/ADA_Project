@@ -9,7 +9,11 @@ Our final and optimistic goal is to use our results to try and analyze the appro
 
 # Research questions: 
 
-- What kind of crops/cattle increased in production in this time frame ?
+- What is the overall impact of the agriculture industry on global green house gas (GHG) emissions ?
+- What are the sources of CH4 and N2O emissions from in the Agriculture Industry ?
+- How has the emissions global emissions of those gases from each source evolved in the past years ?
+- Which countries contribute the most to emissions due to agriculture ?
+- What kind of crops/livestock increased in production in this time frame ?
 - Does overall production increase linearly with population ? Or did the food per person production increase ?
 - When and where fertilizer/pesticide use started being used globally and what were their inpact on production/emissions?
 - Which fertilizers brought the best increase in production ?
