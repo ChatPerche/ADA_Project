@@ -14,12 +14,6 @@ def groupby_second_elem(l):
     return grouped
 
 
-def is_unique_mapping(df, group_col, agg_col):
-    grouped_1 = df.groupby(group_col)[agg_col].apply(lambda x: set(tuple(i) for i in x.values))
-    grouped_2 = df.groupby(agg_col)[group_col].apply(lambda x: set(i for i in x.values))
-    return all(grouped_1.apply(len) == 1) and all(grouped_2.apply(len) == 1)
-
-
 def get_percentage_diff(value_1, value_2):
     diff = np.abs(value_1 - value_2)
     sum_ = (value_1 + value_2) / 2.0
@@ -52,3 +46,11 @@ def get_ts_stats(df):
     grouped = df.groupby(['itemcode', 'areacode'])
     apply_func = lambda x: pd.Series({'years': x['year'].tolist(), 'cols': x.drop(columns=['areacode', 'itemcode', 'year']).dropna(axis=1, how='all').columns.tolist()})
     return grouped.apply(apply_func)
+
+
+def get_element_label(elem):
+    return f"{elem[0]} ({elem[1]})"
+
+        
+def get_column_unique_values(df, cols) -> pd.DataFrame:
+    return df[cols].drop_duplicates()
