@@ -93,9 +93,7 @@ def get_all_column_unique_values(files, rename_cols, duplicate_cols, cols, with_
             dfs.append(df)
     return pd.concat(dfs).drop_duplicates()
             
-                
-                
-                
+                       
 def load_all_df_with_schema(files, schema, column_rename, check_columns, drop_columns):
     dfs = []
     for f in files:
