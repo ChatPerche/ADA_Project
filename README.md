@@ -9,17 +9,23 @@ Our final and optimistic goal is to use our results to try and analyze the appro
 
 # Research questions: 
 
-- How do we quantify environmental footprint accurately enough based on the information at hand ( e.g. fertilizers, agricultural land, etc...) ?
-- What kind of crops/cattle increased in production in this time frame ?
-- When, why and where fertilizer/pesticide use started being used globally and what were their inpact on production/emissions?
-- Which fertilizers brought the best increase in production, and least emissions ?
+- What is the overall impact of the agriculture industry on global green house gas (GHG) emissions ?
+- What are the sources of CH4 and N2O emissions from in the Agriculture Industry ?
+- How has the emissions global emissions of those gases from each source evolved in the past years ?
+- Which countries contribute the most to emissions due to agriculture ?
+- What kind of crops/livestock increased in production in this time frame ?
 - Does overall production increase linearly with population ? Or did the food per person production increase ?
-- How does geographical predispostion influence fertilizer use, and which fertilizers ?
-- What practices have been stopped during that time frame and why ?
-- How much of the produced quantities are going to waste, and which countries tend to over-produce ?
+- When and where fertilizer/pesticide use started being used globally and what were their inpact on production/emissions?
+- Which fertilizers brought the best increase in production ?
+- Which fertilizers are the most efficient in terms of production/emissions ?
+- What practices have been stopped during that time frame and why ? MAYBE REMOVE
 - What are the biggest contributors to air and land pollution in this economy ?
-- Which product's production should be reduced as to reduce waste and pollution ?
-- Is nutritional intake per capita (after substracting wasted food) optimal ?
+- Which product's production should be reduced as to reduce pollution ?
+- Can we find geographical or economic clustering based on agricultural practices ?
+
+- How do we quantify environmental footprint accurately enough based on the information at hand ( e.g. fertilizers, agricultural land, etc...) ?
+//- How does geographical predispostion influence fertilizer use, and which fertilizers ?
+- Is the overall nutritional value production per capita optimal ?
 - How to reduce emissions while enhancing the overall population's diet ?
 
 # Dataset
