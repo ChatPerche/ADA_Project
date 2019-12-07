@@ -1,4 +1,5 @@
 import pandas as pd
+from typing import Optional, List
 
 MISSING_FLAG = "M"
 COMPLETE_FLAG = "C"
@@ -10,11 +11,13 @@ def get_flag(values, itemcodes):
     return COMPLETE_FLAG
 
 
-def groupby_item_groups(df: pd.DataFrame, item_groups: pd.DataFrame) -> pd.DataFrame:
+def groupby_item_groups(df: pd.DataFrame, item_groups: pd.DataFrame,
+                        drop_elements: Optional[List[str]] = None) -> pd.DataFrame:
     """ This functions groups all the items by itemgroup (Be careful that units match , because aggregation is done by sum)
 
     :param df:
     :param item_groups:
+    :param drop_elements
     :return:
     """
     new_df = []
@@ -30,11 +33,15 @@ def groupby_item_groups(df: pd.DataFrame, item_groups: pd.DataFrame) -> pd.DataF
         fltrd = fltrd.assign(flag=fltrd['value'].apply(lambda x: get_flag(x, codes)))
         fltrd['value'] = fltrd['value'].apply(sum)
         new_df.append(fltrd)
+    df = pd.concat(new_df, sort=False).reset_index(drop=True)
     
-    return pd.concat(new_df, sort=False).reset_index()
+    if drop_elements is not None:
+        df = df[~df.elementcode.isin(drop_elements)]
+    return df
 
 
-def groupby_country_groups(df: pd.DataFrame, country_groups: pd.DataFrame) -> pd.DataFrame:
+def groupby_country_groups(df: pd.DataFrame, country_groups: pd.DataFrame,
+                           drop_elements: Optional[List[str]] = None) -> pd.DataFrame:
     new_df = []
     country_groups = country_groups.groupby(['countrygroupcode', 'countrygroup'])['areacode'].apply(set)
     
@@ -51,4 +58,7 @@ def groupby_country_groups(df: pd.DataFrame, country_groups: pd.DataFrame) -> pd
         fltrd['value'] = fltrd['value'].apply(sum)
         new_df.append(fltrd)
     
-    return pd.concat(new_df, sort=False).reset_index()
+    df = pd.concat(new_df, sort=False).reset_index(drop=True)
+    if drop_elements is not None:
+        df = df[~df.elementcode.isin(drop_elements)]
+    return df

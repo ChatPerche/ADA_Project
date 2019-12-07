@@ -1,6 +1,7 @@
 import os
 from fao_ada.pre_processing.load import load_and_clean_df
 from tqdm import tqdm
+import click
 
 DATA_DIR = "data/"
 ITEM_GROUP_DIR = DATA_DIR + "item_groups/"
@@ -51,7 +52,12 @@ CSV_FILES = [{"csv_file": "production/Production_Livestock_E_All_Data_(Normalize
              {"csv_file": "population/Population_E_All_Data_(Normalized).csv", 'item_groups': None, 'country_groups': None}]
 
 
+@click.command()
 def main():
+    """ Cleans up the dataset stored in data/, by removing all item groups, and country groups. Please call this script from root folder
+        Saves the new cleaned dataset under data_cleaned/
+    """
+    
     if not os.path.isdir(CLEANED_DATA_DIR):
         os.mkdir(CLEANED_DATA_DIR)
     
