@@ -6,7 +6,7 @@ import click
 DATA_DIR = "data/"
 ITEM_GROUP_DIR = DATA_DIR + "item_groups/"
 COUNTRY_DATA = DATA_DIR + "country_groups.csv"
-CLEANED_DATA_DIR = "data_cleaned_2/"
+CLEANED_DATA_DIR = "data_cleaned/"
 
 CSV_FILES = [{"csv_file": "production/Production_Livestock_E_All_Data_(Normalized).csv",
               "item_groups": "Production_Livestock_All_data.csv",

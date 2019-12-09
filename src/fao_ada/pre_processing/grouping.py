@@ -41,7 +41,7 @@ def groupby_item_groups(df: pd.DataFrame, item_groups: pd.DataFrame,
 
 
 def groupby_country_groups(df: pd.DataFrame, country_groups: pd.DataFrame,
-                           drop_elements: Optional[List[str]] = None) -> pd.DataFrame:
+                           drop_elements: Optional[List[str]] = None, keep_elements: Optional[List[str]]=None) -> pd.DataFrame:
     new_df = []
     country_groups = country_groups.groupby(['countrygroupcode', 'countrygroup'])['areacode'].apply(set)
     
@@ -61,4 +61,14 @@ def groupby_country_groups(df: pd.DataFrame, country_groups: pd.DataFrame,
     df = pd.concat(new_df, sort=False).reset_index(drop=True)
     if drop_elements is not None:
         df = df[~df.elementcode.isin(drop_elements)]
+    
+    if keep_elements is not None:
+        df = df[df.elementcode.isin(keep_elements)]
+    df['year'] = df.year.astype('int')
+    return df
+
+
+def groupby_all_items_sum(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.groupby(['areacode', 'area', 'elementcode', 'element', 'unit', 'year'])[
+        'value'].sum().reset_index()  # Group all items
     return df

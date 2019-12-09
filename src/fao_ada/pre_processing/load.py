@@ -3,33 +3,13 @@ from typing import Optional
 
 import pandas as pd
 
+from fao_ada.utils import col_is_duplicate, is_unique_mapping
+
 COL_RENAME = {'country': 'area', 'countrycode': 'areacode'}
 DUPLICATE_COLS = ["elementgroup", "yearcode"]
 
 ITEM_MAPPING = ['itemcode', 'item']
 ELEMENT_MAPPING = ['elementcode', 'element', 'unit']
-
-
-def col_is_duplicate(df: pd.DataFrame, col: str) -> bool:
-    """ Checks whether the given column is equal to any other in the given dataframe
-
-    :param df: The dataframe
-    :param col: The column to check
-    :return:
-    """
-    columns = df.columns
-    for c in columns:
-        if c != col:
-            is_equal = (df[col] == df[c]).all()
-            if is_equal:
-                return True
-    return False
-
-
-def is_unique_mapping(df, group_col, agg_col):
-    grouped_1 = df.groupby(group_col)[agg_col].apply(lambda x: set(tuple(i) for i in x.values))
-    grouped_2 = df.groupby(agg_col)[group_col].apply(lambda x: set(i for i in x.values))
-    return all(grouped_1.apply(len) == 1) and all(grouped_2.apply(len) == 1)
 
 
 def read_original_csv(filename: str) -> pd.DataFrame:
