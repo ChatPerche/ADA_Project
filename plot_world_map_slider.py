@@ -4,12 +4,8 @@ from fao_ada.utils import merge_with_geopandas
 # could add minimum and maximum years for custom plotting range
 # needs df with columns VALUE and AREA and YEAR
 
-def plot_world_map_slider(df, filename, title, heatbar_text):
+def plot_world_map_slider(df, shapefile, filename, title, heatbar_text):
     
-
-    shapefile = 'data/gpd_maps/ne_110m_admin_0_countries.shp'
-    # https://www.naturalearthdata.com/downloads/110m-cultural-vectors/
-
     regions = load_dataframe("data/country_groups.csv")
     regions.columns = ["countrygroupcode","countrygroup","countrycode","country","m49code","iso2code","iso3code"]
     regions = regions.rename({"country":"area"}, axis =1)\
