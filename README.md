@@ -29,6 +29,8 @@ Our final and optimistic goal is to use our results to try and analyze the appro
 - How do livestock/crops production affect different emission types (enteric fermentation, etc ..) ?
 - What are the biggest contributors to air and land pollution in this economy ?
 - Which product's production should be reduced as to reduce pollution ?
+- How has the yield evolved across all elements for separate items?
+  - Ho does the ratio emission / yield differ for items in different element groups and within a single group?
 
 ## Part 3: Predictions
 - What are the predictions for the future with the current model ?
