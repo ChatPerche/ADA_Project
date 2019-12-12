@@ -6,6 +6,7 @@ import pandas as pd
 from fao_ada.utils import merge_with_geopandas
 from fao_ada.pre_processing.grouping import groupby_all_items_sum
 
+
 def line_plot_single_element_single_area(df, elementcode, areacode, title, ylabel, figsize=(15, 8)):
     fig, ax = plt.subplots(figsize=figsize)
     df = df[(df.elementcode == elementcode) & (df.areacode == areacode)]
@@ -79,9 +80,10 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
     fig, ax = plt.subplots(figsize=figsize)
     below = None
     bars = []
-    for i in df.itemcode.unique():
+    items, itemcodes = zip(*df[['item', 'itemcode']].drop_duplicates().values)
+    for i in itemcodes:
         values = []
-        
+
         for y in sorted(df.year.unique()):
             tmp = df[(df.itemcode == i) & (df.year == y)]
             if len(tmp) == 0:
@@ -96,11 +98,12 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
         else:
             below = [values]
         bar = ax.bar(ind, values, width, bottom=bottom)
+
         bars.append(bar)
     
     plt.xticks(ind, sorted(df.year.unique()), rotation='vertical')
     
-    plt.legend(tuple(bars), df.item.unique(),
+    plt.legend(tuple(bars), tuple(items),
                bbox_to_anchor=bbox, loc='upper right', ncol=2)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
@@ -111,7 +114,7 @@ def plot_maps(df, elementcodes, countries_df, year, shapefile, titles, itemcodes
     df = df[df.elementcode.isin(elementcodes)]
     if itemcodes is not None:
         df = df[df.itemcode.isin(itemcodes)]
-
+    
     df = groupby_all_items_sum(df)
     
     df = df.merge(countries_df[['areacode', 'iso3code']], left_on='areacode', right_on='areacode')
