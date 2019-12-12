@@ -9,24 +9,35 @@ Our final and optimistic goal is to use our results to try and analyze the appro
 
 # Research questions: 
 
+## Part 1: Exploration
 - What is the overall impact of the agriculture industry on global green house gas (GHG) emissions ?
-- What are the sources of CH4 and N2O emissions from in the Agriculture Industry ?
-- How has the emissions global emissions of those gases from each source evolved in the past years ?
-- Which countries contribute the most to emissions due to agriculture ?
-- What kind of crops/livestock increased in production in this time frame ?
-- Does overall production increase linearly with population ? Or did the food per person production increase ?
-- When and where fertilizer/pesticide use started being used globally and what were their inpact on production/emissions?
-- Which fertilizers brought the best increase in production ?
-- Which fertilizers are the most efficient in terms of production/emissions ?
-- What practices have been stopped during that time frame and why ? MAYBE REMOVE
+  - What are the sources of CH4 and N2O emissions from in the Agriculture Industry ?
+  - How has the emissions global emissions of those gases from each source evolved in the past years ?
+  - Which countries contribute the most to emissions due to agriculture ?
+  - How has each country's COeq emissions evolved ? (Using a interactive map)
+  
+- How has the agriculture industry evolved in the time frame ?
+  - What kind of crops/livestock increased in production in this time frame ?
+  - Does overall production increase linearly with population ? Or did the food per person production increase ?
+  - In detail: how has each item's (in Livestock and Crops) production evolved with respect to population ? And what are the differences ?
+  - When and where fertilizer/pesticide started being used globally ?
+  - How did fertilizer use change over time ?
+
+## Part 2: Analysis
+- Have emissions increased proportionally to production ?
+- What was the effect of different fertilizers on production ?
+- How do livestock/crops production affect different emission types (enteric fermentation, etc ..) ?
 - What are the biggest contributors to air and land pollution in this economy ?
 - Which product's production should be reduced as to reduce pollution ?
-- Can we find geographical or economic clustering based on agricultural practices ?
+- How has the yield evolved across all elements for separate items?
+  - Ho does the ratio emission / yield differ for items in different element groups and within a single group?
 
-- How do we quantify environmental footprint accurately enough based on the information at hand ( e.g. fertilizers, agricultural land, etc...) ?
-//- How does geographical predispostion influence fertilizer use, and which fertilizers ?
-- Is the overall nutritional value production per capita optimal ?
-- How to reduce emissions while enhancing the overall population's diet ?
+## Part 3: Predictions
+- What are the predictions for the future with the current model ?
+- What changes can be brought to this economy that would reduce emissions ?
+- Do those changes affect the overall diet of the population ?
+- How will changes affect the emissions in the future ?
+- What livestock/crops' production should we develop more ?
 
 # Dataset
 
