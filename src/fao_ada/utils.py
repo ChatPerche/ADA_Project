@@ -51,3 +51,49 @@ def normalize_by_population(df, population_df):
     df = df.merge(population_df, left_on=['areacode', 'year'], right_on=['areacode', 'year'], how='left')
     df['value'] = df['value'] / df['population']
     return df.drop(columns='population')
+
+
+def get_itemgroups_intersections(itemgroup_df):
+    itemgroup_df = itemgroup_df.groupby(['itemgroupcode', 'itemgroup'])[['itemcode', 'item']].apply(
+            lambda x: set(tuple(i) for i in x.values.tolist())).reset_index()
+    itemgroup_df['key'] = 1
+    
+    merged = itemgroup_df.merge(itemgroup_df, how='outer', left_on='key', right_on='key')
+    merged = merged[merged['itemgroupcode_x'] != merged['itemgroupcode_y']]
+    merged['intersection'] = merged.apply(lambda x: x['0_x'].intersection(x['0_y']), axis=1)
+    merged = merged[merged['intersection'].apply(len) > 0].drop(['0_x', '0_y'], axis=1)
+    
+    counted = set()
+    for _, r in merged.iterrows():
+        p1, p2 = (r['itemgroupcode_x'], r['itemgroupcode_y']), (r['itemgroupcode_y'], r['itemgroupcode_x'])
+        if p1 not in counted and p2 not in counted:
+            print(f"Intersection on {r['itemgroup_x']} ({r['itemgroupcode_x']}) and {r['itemgroup_y']} "
+                  f"({r['itemgroupcode_y']}) on {r['intersection']}")
+            counted.add((r['itemgroupcode_x'], r['itemgroupcode_y']))
+
+
+def print_all_elements(df):
+    if 'elementcode' in df.columns:
+        tmp = df[['elementcode', 'element', 'unit']].drop_duplicates()
+        print(tmp)
+    else:
+        print("No elementcode column")
+
+
+def print_all_items(df):
+    if 'itemcode' in df.columns:
+        tmp = df[['itemcode', 'item']].drop_duplicates()
+        print(tmp)
+    else:
+        print("No itemcode column")
+
+
+def get_items_only_in_itemgroup(itemgroup_df, itemgroup_code):
+    grouped = itemgroup_df.groupby('itemcode')['itemgroupcode'].apply(set)
+    grouped = grouped[(grouped.apply(len) == 1) & (grouped.apply(lambda x: itemgroup_code in x))]
+    return grouped.index.values
+
+
+def get_items_in_one_group(itemgroup_df):
+    grouped = itemgroup_df.groupby('itemcode')['itemgroupcode'].apply(set)
+    return grouped[grouped.apply(len) == 1]
