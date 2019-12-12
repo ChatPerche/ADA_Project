@@ -140,10 +140,7 @@ def plot_world_map_slider(df, filename, title, heatbar_text):
     regions = regions.rename({"country":"area"}, axis =1)\
                         .drop(["countrygroup","countrygroupcode","countrycode","m49code","iso2code"], axis = 1)
 
-    df = df.groupby(["area","year","unit"])\
-                        .agg({"value":"sum"}).reset_index()\
-                        .drop_duplicates()\
-                        .merge(regions, on = "area")\
+    df = df.merge(regions, on = "area")
 
     df = merge_with_geopandas(df, shapefile)
 
@@ -201,3 +198,4 @@ def plot_world_map_slider(df, filename, title, heatbar_text):
     )
 
     plotly.offline.plot(fig, filename= filename + '.html', auto_open = False)
+    fig.show()
