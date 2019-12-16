@@ -134,7 +134,7 @@ def plot_maps(df, elementcodes, countries_df, year, shapefile, titles, itemcodes
         
 
 
-def plot_world_map_slider(df, filename, title, heatbar_text):
+def plot_world_map_slider(df, filename, title, heatbar_text, year_max=None, year_min=None, cmax = None, cmin = None):
     
     shapefile = "data/gpd_maps/ne_110m_admin_0_countries.shp"
        
@@ -144,13 +144,14 @@ def plot_world_map_slider(df, filename, title, heatbar_text):
                         .drop(["countrygroup","countrygroupcode","countrycode","m49code","iso2code"], axis = 1)
 
     df = df.merge(regions, on = "area")
-
     df = merge_with_geopandas(df, shapefile)
 
-    
-    year_max = int(df.year.max())
-    year_min = int(df.year.min())
+    if(year_max == None): year_max = int(df.year.max())
+    if(year_min == None): year_min = int(df.year.min())
     total_years =  year_max - year_min 
+    
+    cmin = df.value.min()
+    cmax = df.value.max()
 
     fig = go.Figure()
 
@@ -167,16 +168,18 @@ def plot_world_map_slider(df, filename, title, heatbar_text):
             reversescale=False,
             marker_line_color='darkgray',
             marker_line_width=0.5,
+            zmin = cmin,
+            zmax = cmax,
             colorbar_title = heatbar_text ))
         fig.update_layout(title=dict(
                             text = title,
                             y= 0.9,
                             x= 0.5),
-                        geo=dict(
+                          geo=dict(
                             showframe=False,
                             showcoastlines=False,
                             projection_type='equirectangular'),
-                        annotations = [dict(
+                          annotations = [dict(
                             x=0.5,
                             y=-0.1,
                             text='Source: FAOSTAT',
