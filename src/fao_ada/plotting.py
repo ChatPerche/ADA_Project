@@ -113,6 +113,43 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
     ax.set_ylabel(ylabel)
 
 
+def plot_stacked_bar_single_area_single_item(df, itemcode, elementcodes, areacode, title, ylabel, figsize=(15, 7),
+                                                bbox=(0.85, -0.1), width=0.2):
+    df = df[(df.itemcode == itemcode) & (df.areacode == areacode) & (df.elementcode.isin(elementcodes))]
+    
+    ind = np.arange(df.year.nunique())
+    fig, ax = plt.subplots(figsize=figsize)
+    below = None
+    bars = []
+    elements = df[df.elementcode.isin(elementcodes)]['element'].unique()
+    for e in elementcodes:
+        values = []
+        
+        for y in sorted(df.year.unique()):
+            tmp = df[(df.elementcode == e) & (df.year == y)]
+            if len(tmp) == 0:
+                values.append(0)
+            else:
+                values.append(tmp.iloc[0]['value'])
+        
+        bottom = None
+        if below is not None:
+            bottom = np.sum(below, axis=0)
+            below.append(values)
+        else:
+            below = [values]
+        bar = ax.bar(ind, values, width, bottom=bottom)
+        
+        bars.append(bar)
+    
+    plt.xticks(ind, sorted(df.year.unique()), rotation='vertical')
+    
+    plt.legend(tuple(bars), tuple(elements),
+               bbox_to_anchor=bbox, loc='upper right', ncol=2)
+    ax.set_title(title)
+    ax.set_ylabel(ylabel)
+
+
 def plot_maps(df, elementcodes, countries_df, year, shapefile, titles, itemcodes=None, figsize=(15, 15)):
     fig, ax = plt.subplots(figsize=figsize, nrows=len(elementcodes))
     df = df[df.elementcode.isin(elementcodes)]
