@@ -77,7 +77,7 @@ def plot_elements_pie_single_area(df, elementcodes, areacode, suptitle, figsize=
 
 
 def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title, ylabel, figsize=(15, 7),
-                                                bbox=(0.85, -0.1), width=0.2):
+                                                bbox=(0.85, -0.1), width=0.2, factor=1):
     df = df[(df.elementcode == elementcode) & (df.areacode == areacode)]
     
     ind = np.arange(df.year.nunique())
@@ -93,7 +93,7 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
             if len(tmp) == 0:
                 values.append(0)
             else:
-                values.append(tmp.iloc[0]['value'])
+                values.append(tmp.iloc[0]['value']*factor)
         
         bottom = None
         if below is not None:
@@ -150,32 +150,41 @@ def plot_stacked_bar_single_area_single_item(df, itemcode, elementcodes, areacod
     ax.set_ylabel(ylabel)
 
 
-def plot_maps(df, elementcodes, countries_df, year, shapefile, titles, itemcodes=None, figsize=(15, 15)):
+def plot_maps(df, elementcodes, countries_df, year, shapefile, titles, unit, itemcodes=None, figsize=(15, 15)):
     fig, ax = plt.subplots(figsize=figsize, nrows=len(elementcodes))
     df = df[df.elementcode.isin(elementcodes)]
     if itemcodes is not None:
         df = df[df.itemcode.isin(itemcodes)]
     
     df = groupby_all_items_sum(df)
-    
     df = df.merge(countries_df[['areacode', 'iso3code']], left_on='areacode', right_on='areacode')
     
     for i, e in enumerate(elementcodes):
         tmp = df[(df.elementcode == e) & (df.year == year)]
-        unit = tmp.unit.iloc[0]
         tmp = merge_with_geopandas(tmp, shapefile)
-        tmp.plot(column='value', cmap='OrRd', ax=ax[i], legend=True,
-                 legend_kwds={'label': unit, 'orientation': "vertical"})
-        ax[i].set_title(titles[e])
+        axis = ax[i] if len(elementcodes) > 1 else ax
+        tmp.plot(column='value', cmap='OrRd', ax=axis, vmin=min(tmp.value), vmax = max(tmp.value))
+        axis.set_title(titles[e])
 
+        fig = axis.get_figure()
+        cbax = fig.add_axes([0.95, 0.3, 0.03, 0.39])
+        cbax.set_title(unit)
+        
+        print(plt.Normalize(vmin=min(tmp.value), vmax=max(tmp.value)))
+        sm = plt.cm.ScalarMappable(cmap="OrRd", norm=plt.Normalize(vmin=min(tmp.value), vmax=max(tmp.value)))
+
+        # blank-out the array of the scalar mappable 'sm'
+        sm._A = []
+        # draw colorbar into 'cbax'
+        fig.colorbar(sm, cax=cbax, format="%f")
         
 
 
 def plot_world_map_slider(df, filename, title, heatbar_text, year_max=None, year_min=None, cmax = None, cmin = None):
     
-    shapefile = "data/gpd_maps/ne_110m_admin_0_countries.shp"
+    shapefile = "../data/gpd_maps/ne_110m_admin_0_countries.shp"
        
-    regions = load_dataframe("data/country_groups.csv")
+    regions = load_dataframe("../data/country_groups.csv")
     regions.columns = ["countrygroupcode","countrygroup","countrycode","country","m49code","iso2code","iso3code"]
     regions = regions.rename({"country":"area"}, axis =1)\
                         .drop(["countrygroup","countrygroupcode","countrycode","m49code","iso2code"], axis = 1)
