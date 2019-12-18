@@ -5,10 +5,9 @@ import pandas as pd
 import plotly
 import plotly.graph_objects as go
 
-from fao_ada.utils import merge_with_geopandas
+from fao_ada.utils import merge_with_geopandas, get_countries_top_item
 from fao_ada.pre_processing.grouping import groupby_all_items_sum
 from fao_ada.pre_processing.load import load_dataframe
-
 
 
 def line_plot_single_element_single_area(df, elementcode, areacode, title, ylabel, figsize=(15, 8)):
@@ -87,13 +86,13 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
     items, itemcodes = zip(*df[['item', 'itemcode']].drop_duplicates().values)
     for i in itemcodes:
         values = []
-
+        
         for y in sorted(df.year.unique()):
             tmp = df[(df.itemcode == i) & (df.year == y)]
             if len(tmp) == 0:
                 values.append(0)
             else:
-                values.append(tmp.iloc[0]['value']*factor)
+                values.append(tmp.iloc[0]['value'] * factor)
         
         bottom = None
         if below is not None:
@@ -102,10 +101,10 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
         else:
             below = [values]
         bar = ax.bar(ind, values, width, bottom=bottom)
-
+        
         bars.append(bar)
     
-    plt.xticks(ind, sorted(df.year.unique()), rotation='vertical')
+    plt.xticks(ind, sorted(df.year.unique()), rotation=70)
     
     plt.legend(tuple(bars), tuple(items),
                bbox_to_anchor=bbox, loc='upper right', ncol=2)
@@ -114,7 +113,7 @@ def plot_stacked_bar_single_area_single_element(df, elementcode, areacode, title
 
 
 def plot_stacked_bar_single_area_single_item(df, itemcode, elementcodes, areacode, title, ylabel, figsize=(15, 7),
-                                                bbox=(0.85, -0.1), width=0.2):
+                                             bbox=(0.85, -0.1), width=0.2):
     df = df[(df.itemcode == itemcode) & (df.areacode == areacode) & (df.elementcode.isin(elementcodes))]
     
     ind = np.arange(df.year.nunique())
@@ -142,7 +141,7 @@ def plot_stacked_bar_single_area_single_item(df, itemcode, elementcodes, areacod
         
         bars.append(bar)
     
-    plt.xticks(ind, sorted(df.year.unique()), rotation='vertical')
+    plt.xticks(ind, sorted(df.year.unique()), rotation=70)
     
     plt.legend(tuple(bars), tuple(elements),
                bbox_to_anchor=bbox, loc='upper right', ncol=2)
@@ -163,91 +162,125 @@ def plot_maps(df, elementcodes, countries_df, year, shapefile, titles, unit, ite
         tmp = df[(df.elementcode == e) & (df.year == year)]
         tmp = merge_with_geopandas(tmp, shapefile)
         axis = ax[i] if len(elementcodes) > 1 else ax
-        tmp.plot(column='value', cmap='OrRd', ax=axis, vmin=min(tmp.value), vmax = max(tmp.value))
+        tmp.plot(column='value', cmap='OrRd', ax=axis, vmin=min(tmp.value), vmax=max(tmp.value))
         axis.set_title(titles[e])
-
+        
         fig = axis.get_figure()
         cbax = fig.add_axes([0.95, 0.3, 0.03, 0.39])
         cbax.set_title(unit)
         
         print(plt.Normalize(vmin=min(tmp.value), vmax=max(tmp.value)))
         sm = plt.cm.ScalarMappable(cmap="OrRd", norm=plt.Normalize(vmin=min(tmp.value), vmax=max(tmp.value)))
-
+        
         # blank-out the array of the scalar mappable 'sm'
         sm._A = []
         # draw colorbar into 'cbax'
         fig.colorbar(sm, cax=cbax, format="%f")
-        
 
 
-def plot_world_map_slider(df, filename, title, heatbar_text, year_max=None, year_min=None, cmax = None, cmin = None):
-    
+def plot_world_map_slider(df, filename, title, heatbar_text, year_max=None, year_min=None, cmax=None, cmin=None):
     shapefile = "../data/gpd_maps/ne_110m_admin_0_countries.shp"
-       
-    regions = load_dataframe("../data/country_groups.csv")
-    regions.columns = ["countrygroupcode","countrygroup","countrycode","country","m49code","iso2code","iso3code"]
-    regions = regions.rename({"country":"area"}, axis =1)\
-                        .drop(["countrygroup","countrygroupcode","countrycode","m49code","iso2code"], axis = 1)
-
-    df = df.merge(regions, on = "area")
+    
+    countries_df = load_dataframe("../data/countries.csv")
+    
+    df = df.merge(countries_df[['areacode', 'iso3code']], left_on='areacode', right_on='areacode')
     df = merge_with_geopandas(df, shapefile)
-
-    if(year_max == None): year_max = int(df.year.max())
-    if(year_min == None): year_min = int(df.year.min())
-    total_years =  year_max - year_min 
+    
+    if (year_max == None): year_max = int(df.year.max())
+    if (year_min == None): year_min = int(df.year.min())
+    total_years = year_max - year_min
     
     cmin = df.value.min()
     cmax = df.value.max()
-
+    
     fig = go.Figure()
-
+    
     for year in range(year_min, year_max):
         current_map = df[(df.year == year)]
-
-
+        
         fig.add_trace(go.Choropleth(
-            locations = current_map['iso3code'],
-            z = current_map['value'],
-            text = current_map['area'],
-            colorscale = 'Portland',
-            autocolorscale=False,
-            reversescale=False,
-            marker_line_color='darkgray',
-            marker_line_width=0.5,
-            zmin = cmin,
-            zmax = cmax,
-            colorbar_title = heatbar_text ))
+                locations=current_map['iso3code'],
+                z=current_map['value'],
+                text=current_map['area'],
+                colorscale='Portland',
+                autocolorscale=False,
+                reversescale=False,
+                marker_line_color='darkgray',
+                marker_line_width=0.5,
+                zmin=cmin,
+                zmax=cmax,
+                colorbar_title=heatbar_text))
         fig.update_layout(title=dict(
-                            text = title,
-                            y= 0.9,
-                            x= 0.5),
-                          geo=dict(
-                            showframe=False,
-                            showcoastlines=False,
-                            projection_type='equirectangular'),
-                          annotations = [dict(
-                            x=0.5,
-                            y=-0.1,
-                            text='Source: FAOSTAT',
-                            showarrow = False)] )
-
+                text=title,
+                y=0.9,
+                x=0.5),
+                geo=dict(
+                        showframe=False,
+                        showcoastlines=False,
+                        projection_type='equirectangular'),
+                annotations=[dict(
+                        x=0.5,
+                        y=-0.1,
+                        text='Source: FAOSTAT',
+                        showarrow=False)])
+    
     steps = list()
     for year in range(total_years):
         step = dict(
-            method='restyle',
-            args=['visible', [False] * total_years],
-            label=year_min+ year
-        )
+                method='restyle',
+                args=['visible', [False] * total_years],
+                label=year_min + year
+                )
         step['args'][1][year] = True
         steps.append(step)
-
+    
     sliders = [dict(
-        active=0,
-        steps=steps)]
-
+            active=0,
+            steps=steps)]
+    
     fig.update_layout(
-        sliders=sliders
-    )
+            sliders=sliders
+            )
+    
+    plotly.offline.plot(fig, filename=filename + '.html', auto_open=False)
+    fig.show()
 
-    plotly.offline.plot(fig, filename= filename + '.html', auto_open = False)
+
+def plot_country_top_item(df, elementcode, year, filename, title):
+    shapefile = "../data/gpd_maps/ne_110m_admin_0_countries.shp"
+    
+    countries_df = load_dataframe("../data/countries.csv")
+    
+    df = get_countries_top_item(df, elementcode, year)
+    df = df.merge(countries_df[['areacode', 'iso3code']], left_on='areacode', right_on='areacode')
+    df = merge_with_geopandas(df, shapefile)
+    
+    values = dict(list(zip(df.itemcode.unique(), np.arange(df.itemcode.nunique()))))
+    fig = go.Figure()
+    fig.add_trace(go.Choropleth(
+            locations=df['iso3code'],
+            z=df['itemcode'].apply(lambda x: values[x]),
+            text=df[['item', 'value']],
+            colorscale='Earth',
+            reversescale=False,
+            marker_line_color='darkgray',
+            marker_line_width=0.5,
+            showscale=False,
+            ))
+    
+    fig.update_layout(title=dict(
+            text=title,
+            y=0.9,
+            x=0.5),
+            geo=dict(
+                    showframe=False,
+                    showcoastlines=False,
+                    projection_type='equirectangular'),
+            annotations=[dict(
+                    x=0.5,
+                    y=-0.1,
+                    text='Source: FAOSTAT',
+                    showarrow=False)])
+    plotly.offline.plot(fig, filename=filename+ '.html', auto_open=False)
+    
     fig.show()
