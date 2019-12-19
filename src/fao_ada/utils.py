@@ -97,3 +97,10 @@ def get_items_only_in_itemgroup(itemgroup_df, itemgroup_code):
 def get_items_in_one_group(itemgroup_df):
     grouped = itemgroup_df.groupby('itemcode')['itemgroupcode'].apply(set)
     return grouped[grouped.apply(len) == 1]
+
+
+def get_countries_top_item(df, elementcode, year):
+    data = df[(df.elementcode == elementcode) & (df.year == year)]
+    top = data.groupby(['areacode', 'area', 'element', 'unit', 'elementcode']).apply(
+        lambda x: x.sort_values('value', ascending=False)[['item', 'itemcode', 'value']].iloc[0])
+    return top.reset_index()

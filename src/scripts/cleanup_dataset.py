@@ -48,6 +48,8 @@ CSV_FILES = [{"csv_file": "production/Production_Livestock_E_All_Data_(Normalize
               "item_groups": "Emissions_Agriculture_Energy_Use.csv", "country_groups": COUNTRY_DATA},
              {"csv_file": "inputs/Inputs_Pesticides_Use_E_All_Data_(Normalized).csv", "item_groups": "Inputs_Pesticides.csv",
               "country_groups": COUNTRY_DATA},
+             {"csv_fike": "emissions_agriculture/Emissions_Agriculture_Rice_Cultivation_E_All_Data_(Normalized).csv",
+              "country_groups": COUNTRY_DATA, "item_groups": None},
              {"csv_file": "environment/Environment_AirClimateChange_E_All_Data.csv", 'item_groups': None, 'country_groups': None},
              {"csv_file": "population/Population_E_All_Data_(Normalized).csv", 'item_groups': None, 'country_groups': None}]
 
