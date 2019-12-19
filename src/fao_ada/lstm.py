@@ -16,6 +16,7 @@ import shap
 NaN_Mask_Value   = -1 #-100
 underflow_buffer = 0
 
+default_dense_layers     = 0
 default_model_complexity = 200
 default_batch_size       = 10
 default_num_epochs       = 1000
@@ -24,7 +25,7 @@ default_learning_rate    = 0.001
 
 
 def reshape_and_pad(data, time_series_length, columns,
-                    verbose = False, differentiate=True, for_model=True):
+                    verbose = False, differentiate=True):
     '''
     Takes data from database format. Reshapes into sets of differentied timeseries,
     with one set of timeseries per country and start year. Missing values are padded
@@ -97,10 +98,10 @@ def reshape_and_pad(data, time_series_length, columns,
         # Pad missing values with NaNs.
         for year in range(start_year,start_year+time_series_length):
             for area_c in area_codes:
-                if (area_c,year) not in slice.index.values:
+                if not any(slice.index.isin([(area_c,year)])):
                     new_row =  pd.Series([np.nan for i in range(len(columns))]+[year,area_c],
                                   index = slice.columns,name=(area_c,year))
-                    slice.append(new_row)
+                    slice = slice.append(new_row)
 
         # Consider values with 0 as NaNs
         slice = slice.replace(to_replace=0,value=np.nan)
@@ -108,6 +109,7 @@ def reshape_and_pad(data, time_series_length, columns,
 
 
         if differentiate:
+
             # Introducing differentiation - values are on a scale of ]-1,+inf[
             # Apply tanh scaling - values are on a scale of ]tanh(-1),1[
             to_differentiate = slice[slice.columns[:-2].values]
@@ -118,26 +120,26 @@ def reshape_and_pad(data, time_series_length, columns,
             to_append = slice[slice.areacode_copy == area_c] \
                 .replace(to_replace=[-np.inf, np.inf, np.nan, 0], value=NaN_Mask_Value) \
                 .mask(slice <= -1 + underflow_buffer, NaN_Mask_Value) \
-                .drop(columns='year_copy').drop(labels=start_year, level=1) \
-                .drop(columns='areacode_copy')
+                .drop(columns='year_copy')\
 
+            if differentiate:
+                to_append = to_append.drop(labels=start_year, level=1)
 
+            to_append = to_append.drop(columns='areacode_copy')
 
-            if to_append.shape[0] == time_series_length - 1:
-
-                observations.append(to_append)
-
+            observations.append(to_append)
 
     return observations
 
-def filter_samples(observations,
+def filter_samples(observations,batch_size,
                    ratio=default_train_test_ratio,
                    include_output_column =False,
                    include_t0 = False,
                    for_model  = True,
                    nan_percent_cutoff = None,
                    custom_filtering = None,
-                   input_scaling = None):
+                   input_scaling = None,
+                   should_shuffle = True):
 
     def nan_percent_thresholding(df):
         value_counts=None
@@ -145,7 +147,7 @@ def filter_samples(observations,
             value_counts = df.stack().value_counts(normalize=True)
         else:
             value_counts = df[df.columns[:-1]].stack().value_counts(normalize=True)
-        return (not -NaN_Mask_Value in value_counts.index) or (value_counts.loc[NaN_Mask_Value] < nan_percent_cutoff )
+        return (not (NaN_Mask_Value in value_counts.index)) or (value_counts.loc[NaN_Mask_Value] <= nan_percent_cutoff )
 
     assert(not (include_output_column and include_t0))
 
@@ -157,18 +159,27 @@ def filter_samples(observations,
 
     input_output_is_all_nan = lambda df: np.all((select_input(df).values == NaN_Mask_Value)) \
                                         or select_ouput(df).values[0][0] == NaN_Mask_Value
-    keep_slice = lambda df : ( not input_output_is_all_nan(df) if for_model else True ) \
+    keep_slice = lambda df : (( not input_output_is_all_nan(df) if for_model else True ) \
                          and ( nan_percent_thresholding(df) if nan_percent_cutoff is not None else True)\
-                         and ( custom_filtering(df) if custom_filtering is not None else True)
+                         and ( custom_filtering(df) if custom_filtering is not None else True))
 
-    #shuffle(observations)
 
-    train    = observations[:int(len(observations)*ratio)]
-    test     = observations[int(len(observations)*ratio):]
-    test_Y   = np.array([select_ouput(df).values for df in test  if keep_slice(df)])
-    train_Y  = np.array([select_ouput(df).values for df in train if keep_slice(df)])
-    test_X   = np.stack([select_input(df).values for df in test  if keep_slice(df)],axis=0)
-    train_X  = np.stack([select_input(df).values for df in train if keep_slice(df)],axis=0)
+
+    shuffled = observations
+    if should_shuffle:
+        shuffle(shuffled)
+
+    ratio    = int(len(shuffled)*ratio)
+    train    = shuffled[:ratio]
+    test     = shuffled[ratio:]
+
+    shorten_to_batch = lambda x: x[:int(len(x) / batch_size) * batch_size]
+
+    test_Y   = shorten_to_batch(np.array([select_ouput(df).values for df in test  if keep_slice(df)]))
+    train_Y  = shorten_to_batch(np.array([select_ouput(df).values for df in train if keep_slice(df)]))
+    test_X   = shorten_to_batch(np.stack([select_input(df).values for df in test  if keep_slice(df)],axis=0))
+    train_X  = shorten_to_batch(np.stack([select_input(df).values for df in train if keep_slice(df)],axis=0))
+
 
     if input_scaling is None:
         input_scaling = lambda x : x
@@ -179,7 +190,7 @@ def build_lstm(num_input_timeseries, num_timesteps,
               batch_size=default_batch_size,
               dense_layer_activation=tf.sigmoid,
               ouput_layer_activation=None,
-              num_dense_layers = 15,
+              num_dense_layers = default_dense_layers,
               verbose=False):
     '''
     Builds LSTM model 
@@ -201,19 +212,21 @@ def build_lstm(num_input_timeseries, num_timesteps,
 
     model.add(k.layers.Masking(mask_value=NaN_Mask_Value))
 
-    model.add(k.layers.LSTM(int(model_complexity),stateful=True,name='lstm_1'))
+    model.add(k.layers.LSTM(int(model_complexity),stateful=False,
+                            name='lstm_1'))
 
     model.add(k.layers.RepeatVector(1))
 
-    model.add(k.layers.LSTM(int(model_complexity),stateful=True, return_sequences=True,
-                            name='lstm_2'))
-    model.add(k.layers.LSTM(int(model_complexity),stateful=True, return_sequences=True,
-                            name='lstm_3'))
+    model.add(k.layers.LSTM(int(model_complexity),stateful=False, return_sequences=False,
+                             name='lstm_2'))
+
+   # model.add(k.layers.LSTM(int(model_complexity),stateful=True, return_sequences=True,
+   #                         name='lstm_3'))
 
     for i in range(num_dense_layers,0,-1):
         model.add(k.layers.Dense(model_complexity * i / float(num_dense_layers),
                                  activation=dense_layer_activation))
-        model.add(k.layers.Dropout(0.1))
+        model.add(k.layers.Dropout(0.33))
 
     model.add(k.layers.Dense(1, activation=ouput_layer_activation))
 
@@ -228,6 +241,7 @@ def build_and_run_lstm(train_X, train_Y, test_X, test_Y,
              batch_size=default_batch_size,
              num_epochs=default_num_epochs,
              learning_rate=default_learning_rate,
+             num_dense_layers=default_dense_layers,
              verbose=False):
 
     '''
@@ -252,7 +266,7 @@ def build_and_run_lstm(train_X, train_Y, test_X, test_Y,
         :param y_pred: Batch output - Scaled 
         :return: MSE error of batch, as measured with respect to our descaled values
         '''
-        return (y_pred-y_true)**2
+        return ((y_pred-y_true)/(1+y_true))**2
 
     def rms(y_true,y_pred):
         return tf.sqrt(adj_loss(y_true,y_pred))
@@ -260,17 +274,18 @@ def build_and_run_lstm(train_X, train_Y, test_X, test_Y,
     model = build_lstm(num_input_timeseries=train_X[0].shape[1],
                        num_timesteps=train_X[0].shape[0],
                        model_complexity=model_complexity,
-                       batch_size=batch_size,verbose=verbose)
+                       batch_size=batch_size,verbose=verbose,
+                       num_dense_layers=num_dense_layers)
 
-    model.compile(optimizer=k.optimizers.Adam(lr=learning_rate),loss=k.losses.MSE,metrics=[rms])
+    model.compile(optimizer=k.optimizers.Adam(lr=learning_rate),loss=k.losses.MAE,metrics=[rms])
 
     training_set = tf.data.Dataset.from_tensor_slices(( \
         tf.cast(train_X, tf.float32), \
-        tf.cast(train_Y, tf.float32))).batch(batch_size).shuffle(batch_size*2)
+        tf.cast(train_Y.reshape(-1,1), tf.float32))).batch(batch_size).shuffle(batch_size*2)
 
     testing_set = tf.data.Dataset.from_tensor_slices((
         tf.cast(test_X, tf.float32),
-        tf.cast(test_Y, tf.float32))).batch(batch_size).shuffle(batch_size*2)
+        tf.cast(test_Y.reshape(-1,1), tf.float32))).batch(batch_size).shuffle(batch_size*2)
 
     print(train_X.shape,train_Y.shape)
     print(testing_set)
