@@ -1,0 +1,23 @@
+In order to better understand our dataset, we wished to develop an anlaytic method for measuring non-linear dependencies between our different time series data. More specifically, we want to analyse the impact of the multivariate timeseries across timestamps [t-n,t] on a target time series at timestamp t. 
+
+The approach we followed consisted of:
+     - Finding a function mapping multivariate time series to a single scalar value of an output time-series. To do this, we fit a multivariate LSTM to our data.  
+     - Finding the contribution of each value to the ouput time-series scalar value. To do this we use Shapely Values. 
+     
+Before going any further, let us note that we transform our time series into a series of ratios between adjacent values, and then subtract 1 from all values. Negative values thus signal decreases in the time series, positive values signal an increase, and 0 indicates that the time series is stable. 
+
+More formally, the Shapley Value of a feature is its contribution to the payout, weighted and summed over all possible feature value combinations. Payout is defined here simply as the output of our mapping. Since our mappping outputs the predicted rate of change in our target time series minus 1, the abosulte value of our mapping output becomes a measure of the rate of change of our time series . By calculating Shapely Values for each element of our input multivariate timeseries, across a set of input samples, and extracting the mean absolute value of the Shapely Values per input element, we can quantify how the variations in a set of timeseries impacts the variation in a target timeseries, accross different timestep latencies. Note that by taking mean absolute values, we are measuring the strength of the impact of one variation on another, and not the direction of that influence. 
+
+In the example below, we use our method to study the impact of variations in animal head counts on variations in overall emissions due to agriculture. We are studying the impact of those variations with a timestep lag of 0, as we wish to minimize the number of input features. The largest impacts come from Sheep, Goats, Cattle, Swine and Chicken. The smaller impacts of other animals can be explained by their very small head counts. 
+
+In order to understand our results, lets look at Sections II.1 and II.3.3. From the numbers presented in these two sections, we see that Cattle and Swine represent large portions of emissions from livestock. As head counts of Cattle and Swine are also large, it becomes clear that variations in head counts of these two animals must significantly impact emissions -- the lesser impact of Swine with respect to Cattle can be explained in by the lower values of emissions/head for Swine ( Section II.3.3 )
+
+Understanding the impact from Sheep, Goats and Chicken is more subtle. Both of these animals represent small portions of overall worldwide emissions due to livestock, so why would variations in these significanly impact variations in emissions ? We can find part of the answer by looking at emissions per head in Section II.3.3 : these two animals are the only two animals with very low emissions/head values which do not represent insignificant portions of overall worldwide emissions -- as such, variations in Goat and Sheep counts in and of themselves cannot impact overall emissions significantly, so our results must be explained by another hidden iteraction : an inverse correlation between increases in Goat/Sheep/Chicken counts and Cattle/Swine counts would explain our results. In conclusion, our previous findings are confirmed, in that Cattle
+
+    
+- Lipovetsky, Stan, and Michael Conklin. "Analysis of regression in game theory approach." Applied Stochastic Models in Business and Industry 17.4 (2001): 319-330
+
+- Shapley sampling values: Strumbelj, Erik, and Igor Kononenko. "Explaining prediction models and individual predictions with feature contributions." Knowledge and information systems 41.3 (2014): 647-665
+
+
+

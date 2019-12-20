@@ -22,7 +22,7 @@ default_num_epochs            = 1
 default_train_test_ratio      = 0.90
 default_learning_rate         = 0.0001
 default_nan_percent_cutoff    = 0.33
-default_shap_samples          = 25
+default_shap_samples          = 20
 default_dense_activation      = tf.sigmoid
 default_output_activation     = None
 
