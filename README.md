@@ -7,7 +7,7 @@ Using this dataset, we seek to study the evolution of agricultural practices and
 
 Our final and optimistic goal is to use our results to try and analyze the approximate nutritional intake per capita from the current agricultural production, and extract the optimal agricultural strategy that would reduce emissions by a certain percentage, while enhancing the nutritional intake.
 
-Data Story
+Data Story : https://theobian.github.io/ada/
 
 # Research questions: 
 
