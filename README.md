@@ -41,42 +41,6 @@ We believe that we have found two versions of the same dataset: one found on Kag
 
 The dataset contains 78 csv files, each representing different statistics related to Food and Agriculture, ranging from a few KiB to a couple of GiB of data. We believe we won't use all of them, as some describe numbers that are not needed such as Consumer prices, exchange rates food aid food balance, household surveys etc ...
 
-The deleted (unused) csv files are :
-- Development_Assistance_to_Agriculture_E_All_Data_(Normalized).csv
-- Exchange_rate_E_All_Data_(Normalized).csv
-- Food_Aid_Shipments_WFP_E_All_Data_(Normalized).csv
-- Prices_Monthly_E_All_Data_(Normalized).csv
-- ConsumerPriceIndices_E_All_Data_(Normalized).csv
-- Employment_Indicators_E_All_Data_(Normalized).csv
-- Indicators_from_Household_Surveys_E_All_Data_(Normalized).csv
-- Forestry_Trade_Flows_E_All_Data_(Normalized).csv
-- ASTI_Research_Spending_E_All_Data_(Norm).csv
-- Trade_Crops_Livestock_E_All_Data_(Normalized).csv
-- Trade_DetailedTradeMatrix_E_All_Data_(Normalized).csv
-- Trade_Indices_E_All_Data_(Normalized).csv
-- Trade_LiveAnimals_E_All_Data_(Normalized).csv
-- ASTI_Researchers_E_All_Data_(Norm).csv
-- CommodityBalances_LivestockFish_E_All_Data_(Normalized).csv
-- CommodityBalances_Crops_E_All_Data_(Normalized).csv
-- Deflators_E_All_Data_(Normalized).csv
-- FoodBalanceSheets_E_All_Data_(Normalized).csv
-- Food_Security_Data_E_All_Data_(Normalized).csv
-- FoodSupply_Crops_E_All_Data_(Normalized).csv
-- FoodSupply_LivestockFish_E_All_Data_(Normalized).csv
-- Macro-Statistics_Key_Indicators_E_All_Data_(Normalized).csv
-- Prices_E_All_Data_(Normalized).csv
-- PricesArchive_E_All_Data.csv
-- Price_Indices_E_All_Data_(Normalized).csv
-- Investment_CapitalStock_E_All_Data_(Normalized).csv
-- Investment_ForeignDirectInvestment_E_All_Data_(Normalized).csv
-- Investment_Machinery_E_All_Data_(Normalized).csv
-- Investment_CountryInvestmentStatisticsProfile__E_All_Data_(Normalized).csv
-- Investment_GovernmentExpenditure_E_All_Data_(Normalized).csv
-- Investment_CreditAgriculture_E_All_Data_(Normalized).csv
-- Investment_MachineryArchive_E_All_Data_(Normalized).csv
-- Value_of_Production_E_All_Data_(Normalized).csv
-- Inputs_FertilizersTradeValues_E_All_Data_(Normalized).csv
-- Inputs_Pesticides_Trade_E_All_Data_(Normalized).csv
 
 This leaves us with 43 csv files, which have a very similar schema. It is a row based database, with each row having the following attributes (at least): 
 `Area Code, Area, Item Code, Item, Element Code, Element, Year Code, Year, Unit, Value, Flag.`
