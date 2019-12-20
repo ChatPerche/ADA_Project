@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from keras import Sequential
 from keras.layers import Dense, LSTM
+from keras.models import load_model
 from keras.optimizers import Adam
+from sklearn import preprocessing
 from tqdm import tqdm
-import tensorflow as tf
 
 
 def extract_timeseries_data(df, areacode, itemcode, elementcode, window, prediction_steps, scale_factor, year_max=2020):
@@ -145,3 +147,32 @@ def generate_predictions(df, areacode, window, step, scale_factor, end_year):
     prediction_dfs['elementcode'] = prediction_dfs['elementcode'].astype("float64")
     prediction_dfs['areacode'] = prediction_dfs['areacode'].astype('int64')
     return pd.concat([data, prediction_dfs], sort=False).reset_index(drop=True)
+
+
+def predict_emissions(df, model_path, areacode, area, items, year_from, year_to):
+    years = np.arange(year_from, year_to + 1)[:, None]
+    itemcodes = {
+        5058: "Enteric Fermentation",
+        5059: "Manure Management",
+        5062: "Manure applied to Soils",
+        5063: "Manure left on Pasture"
+        }
+    df = df[df.itemcode != 1181]  # remove beehives
+
+    df['value'] = df.apply(lambda x: x['value'] if x['elementcode'] == 5111 else x['value'] * 1000, axis=1)  # Change units
+    model = load_model(model_path)
+    data = df.set_index(['itemcode', 'areacode', 'year'])['value'].unstack(0)
+    min_max_scaler = preprocessing.MinMaxScaler()
+    data = data.fillna(0)
+    
+    predictions = model.predict(min_max_scaler.fit_transform(data[sorted(data.columns)].values))
+    
+    predictions = pd.DataFrame(np.hstack([predictions, years]), columns=items + ["year"]).melt(id_vars=["year"],
+                                                                                               var_name="itemcode",
+                                                                                               value_name="value")
+    predictions["areacode"] = areacode
+    predictions["area"] = area
+    predictions['item'] = predictions['itemcode'].apply(lambda x: itemcodes[x])
+    predictions["element"] = "Emissions (CO2eq)"
+    predictions["unit"] = "Gigagrams"
+    return predictions
