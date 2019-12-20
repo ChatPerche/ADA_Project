@@ -24,20 +24,16 @@ Our final and optimistic goal is to use our results to try and analyze the appro
   - How did fertilizer use change over time ?
 
 ## Part 2: Analysis
+- What are the contributions of livestock/crops for each different emission type (enteric fermentation, etc ..) ?
 - Have emissions increased proportionally to production ?
-- What was the effect of different fertilizers on production ?
+- Which product's production should be reduced as to reduce emissions ?
 - How do livestock/crops production affect different emission types (enteric fermentation, etc ..) ?
-- What are the biggest contributors to air and land pollution in this economy ?
 - Which product's production should be reduced as to reduce pollution ?
-- How has the yield evolved across all elements for separate items?
-  - Ho does the ratio emission / yield differ for items in different element groups and within a single group?
 
 ## Part 3: Predictions
 - What are the predictions for the future with the current model ?
-- What changes can be brought to this economy that would reduce emissions ?
 - Do those changes affect the overall diet of the population ?
-- How will changes affect the emissions in the future ?
-- What livestock/crops' production should we develop more ?
+- How will emissions evolve in the future ?
 
 # Dataset
 
